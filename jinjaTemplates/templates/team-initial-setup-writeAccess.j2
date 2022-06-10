@@ -9,7 +9,7 @@ resource "tfe_team" "{{team.name}}" {
 resource "tfe_variable_set" "varset_{{team.name}}" {
   name          = "varset_{{team.name}}"
   description   = "Variable set for {{team.name}}"
-  workspace_ids = [{{team.workspaces | map(attribute='name')|list|AddIdPrefix }}]
+  workspace_ids = [{{team.workspaces | map(attribute='name')|list|makelistofworkspaces  }}]
 }
 
 ######################## Create each terraform workspace for team: {{team.name}}
