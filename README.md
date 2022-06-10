@@ -1,6 +1,6 @@
 # terraform-cloud-config
 # IaC Automation via Jinja2
-To automate the deployment of IaC code for complex configuration, consider using Jinja templating.
+To automate the deployment of IaC code for complex configurations, consider using Jinja templating.
 
 A sample pipeline is provided in the repo which consists of the following key files
 
