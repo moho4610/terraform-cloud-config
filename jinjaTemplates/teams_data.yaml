@@ -1,0 +1,33 @@
+---
+tforg: "meltaier-lab"
+teams:
+  - name: "teamname01"
+    workspaces: 
+              - name: wspce_teamname01_APP01_DEV
+                tags: ['tag1','tag2','tag3']          
+              - name: wspce_teamname01_APP01_PRD
+                tags: ['tag5','tag6','tag7']
+
+    SSOId: "InserAADObjectIdHere01"
+    variableset: "varset_teamname01"
+
+  - name: "teamnname02"
+    SSOId: "InserAADObjectIdHere02"
+    variableset: "varset_teamname02"
+    workspaces: 
+              - name: wspce_teamname02_APP01_DEV
+                tags: [tag1,tag2,tag3]          
+              - name: wspce_teamname02_APP01_PRD
+                tags: [tag5,tag6,tag7]
+
+
+  - name: "teamnname03"
+    SSOId: "InserAADObjectIdHere02"
+    variableset: "varset_teamname03"
+    workspaces: 
+              - name: wspce_teamname03_APP01_DEV
+                tags: [tag1,tag2,tag3]          
+              - name: wspce_teamname03_APP01_PRD
+                tags: [tag5,tag6,tag7]
+              - name: wspce_teamname03_APP01_UAT
+                tags: [tag5,tag6,tag7]

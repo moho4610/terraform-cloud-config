@@ -1,0 +1,31 @@
+{% for team in teams %}
+#######  - START 
+############# Create terraform Cloud team for team: {{team.name}}
+resource "tfe_team" "{{team.name}}" {
+  name         = "{{team.name}}"
+  sso_team_id  = "{{team.SSOId}}"  ##Optional
+}
+############# Create terraform Cloud variable set for team: {{team.name}}
+resource "tfe_variable_set" "varset_{{team.name}}" {
+  name          = "varset_{{team.name}}"
+  description   = "Variable set for {{team.name}}"
+  workspace_ids = [{{team.workspaces | map(attribute='name')|list|AddIdPrefix }}]
+}
+
+######################## Create each terraform workspace for team: {{team.name}}
+  {% for workspace in team.workspaces %}  
+resource "tfe_workspace" "{{workspace.name}}" {
+  name         = "{{workspace.name}}"
+  tag_names    = {{ '['+'\"' + workspace.tags | join('\", \"') + '\"' +']' }}
+  {% endfor %}
+}
+######################## Enforce write access for each workspace
+  {% for workspace in team.workspaces %}
+resource "tfe_team_access" "{{team.name}}_{{workspace.name}}_write_access" {
+  access       = "write"
+  team_id      = tfe_team.{{team.name}}.id
+  workspace_id = {{workspace.name}}
+}
+  {% endfor %}
+######################################################################### - END
+{% endfor %}

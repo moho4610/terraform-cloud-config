@@ -1,0 +1,47 @@
+{% for team in teams %}
+#######  - START 
+############# Create terraform Cloud team for team: {{team.name}}
+resource "tfe_team" "{{team.name}}" {
+  name         = "{{team.name}}"
+  #sso_team_id  = "{{team.SSOId}}"   ##Optional
+  organization = "{{tforg}}"
+}
+############# Create terraform Cloud variable set for team: {{team.name}}
+resource "tfe_variable_set" "varset_{{team.name}}" {
+  name          = "varset_{{team.name}}"
+  description   = "Variable set for {{team.name}}"
+  workspace_ids = [{{team.workspaces | map(attribute='name')|list|makelistofworkspaces }}]
+  organization = "{{tforg}}"
+
+}
+
+######################## Create each terraform workspace for team: {{team.name}}
+  {% for workspace in team.workspaces %}  
+resource "tfe_workspace" "{{workspace.name}}" {
+  name         = "{{workspace.name}}"
+  tag_names    = {{ '['+'\"' + workspace.tags | join('\", \"') + '\"' +']' }}
+  organization = "{{tforg}}"
+
+  }
+  {% endfor %}
+
+######################## Enforce plan access for each workspace
+  {% for workspace in team.workspaces %}
+resource "tfe_team_access" "{{team.name}}_{{workspace.name}}_plan_access" {
+  access       = "plan"
+  team_id      = tfe_team.{{team.name}}.id
+  workspace_id = tfe_workspace.{{workspace.name}}.id
+}
+  {% endfor %}
+######################################################################### - END
+{% endfor %}
+
+terraform {
+  cloud {
+    organization = "meltaier-lab"
+
+    workspaces {
+      name = "test"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+parameters:
+  - name: yamlfile
+    displayName: Type the location of the YAML configuration file
+    type: string
+    default: teams_data.yaml
+  - name: jinjafile
+    displayName: Type the location of the jinja template j2 file in templates folder
+    type: string
+    default: team-initial-setup-mixedAccess.j2
+
+
+pool:
+  vmImage: ubuntu-latest
+
+
+steps:
+
+- script: pwd
+  displayName: 'print working directory'
+
+- task: PythonScript@0
+  inputs:
+    scriptSource: 'filePath'
+    scriptPath: 'jinjaTemplates/main.py'
+    workingDirectory: jinjaTemplates
+    arguments: '${{ parameters.yamlfile }} ${{ parameters.jinjafile }}'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'jinjaTemplates/renderedTf_file.tf'
+    ArtifactName: 'renderedTf_file'
+    publishLocation: 'Container'

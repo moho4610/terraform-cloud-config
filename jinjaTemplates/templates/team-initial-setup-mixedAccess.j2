@@ -1,0 +1,57 @@
+{% for team in teams %}
+#######  - START 
+############# Create terraform Cloud team for team: {{team.name}}
+resource "tfe_team" "{{team.name}}_plan" {
+  name         = "{{team.name}}_plan"
+  #sso_team_id  = "{{team.SSOId}}"   ##Optional
+  organization = "{{tforg}}"
+}
+resource "tfe_team" "{{team.name}}_write" {
+  name         = "{{team.name}}_write"
+  organization = "{{tforg}}"
+}
+
+############# Create terraform Cloud variable set for team: {{team.name}}
+resource "tfe_variable_set" "varset_{{team.name}}_write" {
+  name          = "varset_{{team.name}}"
+  description   = "Variable set for {{team.name}}"
+  workspace_ids = [{{team.workspaces | map(attribute='name')|list|makelistofworkspaces }}]
+  organization = "{{tforg}}"
+
+}
+
+######################## Create each terraform workspace for team: {{team.name}}
+  {% for workspace in team.workspaces %}  
+resource "tfe_workspace" "{{workspace.name}}" {
+  name         = "{{workspace.name}}"
+  tag_names    = {{ '['+'\"' + workspace.tags | join('\", \"') + '\"' +']' }}
+  organization = "{{tforg}}"
+
+  }
+  {% endfor %}
+
+######################## Enforce plan and write access for each workspace
+  {% for workspace in team.workspaces %}
+resource "tfe_team_access" "{{team.name}}_{{workspace.name}}_plan_access" {
+  access       = "plan"
+  team_id      = tfe_team.{{team.name}}_plan.id
+  workspace_id = tfe_workspace.{{workspace.name}}.id
+}
+resource "tfe_team_access" "{{team.name}}_{{workspace.name}}_write_access" {
+  access       = "write"
+  team_id      = tfe_team.{{team.name}}_write.id
+  workspace_id = tfe_workspace.{{workspace.name}}.id
+}
+  {% endfor %}
+######################################################################### - END
+{% endfor %}
+
+terraform {
+  cloud {
+    organization = "meltaier-lab"
+
+    workspaces {
+      name = "test"
+    }
+  }
+}
